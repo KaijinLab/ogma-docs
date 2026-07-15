@@ -8,7 +8,7 @@
 
 # Ogma Documentation
 
-### Source for [docs.ogma.app](https://docs.ogma.app)
+### Source for [ogma.kaijinlab.com](https://ogma.kaijinlab.com)
 
 <br/>
 
@@ -74,7 +74,7 @@ All pages use standard Markdown with VitePress frontmatter. See the [VitePress d
 
 ## Deployment
 
-Documentation is deployed automatically to [docs.ogma.app](https://docs.ogma.app) via GitHub Actions on every push to `master`.
+Documentation is deployed automatically to [ogma.kaijinlab.com](https://ogma.kaijinlab.com) via GitHub Actions on every push to `master`.
 
 ## License
 
