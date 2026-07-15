@@ -8,6 +8,9 @@ keywords: Ogma plugins, web proxy plugin marketplace, penetration testing proxy 
 
 Plugins extend Ogma with custom UI pages, backend processing, event hooks, and settings panels - all scoped to the plugin's declared permissions.
 
+<img class="ogma-screenshot ogma-ss-dark" src="/plugins-dark.webp" alt="Plugins view in dark mode" loading="lazy">
+<img class="ogma-screenshot ogma-ss-light" src="/plugins-light.webp" alt="Plugins view in light mode" loading="lazy">
+
 ## What Plugins Can Add
 
 - Custom UI pages accessible from the left navigation.

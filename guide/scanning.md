@@ -8,11 +8,6 @@ keywords: Ogma scanner, passive scanner, active scanner, vulnerability detection
 
 Ogma includes passive and active scanners. Passive scanning analyzes captured traffic. Active scanning sends modified requests and validates findings from response behavior, timing, reflection, and baseline comparison.
 
-<div class="screenshot-placeholder">
-  <strong>Screenshot placeholder</strong>
-  <span>Scanner utility with Passive Scanner and Active Scanner tabs, detection rules, and findings evidence.</span>
-</div>
-
 ## Passive Scanner
 
 The passive scanner evaluates captured HTTP entries without sending new traffic.

@@ -8,11 +8,6 @@ keywords: Ogma utilities, web security decoder, JWT analyzer, OAST testing, reve
 
 Ogma's Utilities view collects focused tools that support testing and analysis outside the main proxy table.
 
-<div class="screenshot-placeholder">
-  <strong>Screenshot placeholder</strong>
-  <span>Utilities navigation showing Scanner, OAST, Decoder, JWT, Compare, Sequencer, Payloads, and Reverse Shell.</span>
-</div>
-
 ## Scanner
 
 Runs passive and active scanner workflows. See [Scanning](./scanning.md).

@@ -8,6 +8,9 @@ keywords: Ogma HTTP History, proxy history, request response inspector
 
 HTTP History records every request and response that passes through the Ogma proxy, giving you a searchable, filterable log of all captured traffic.
 
+<img class="ogma-screenshot ogma-ss-dark" src="/http-history-dark.webp" alt="HTTP History in dark mode" loading="lazy">
+<img class="ogma-screenshot ogma-ss-light" src="/http-history-light.webp" alt="HTTP History in light mode" loading="lazy">
+
 ## The Traffic Table
 
 Each row represents one request-response pair. The columns are:

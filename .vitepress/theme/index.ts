@@ -63,8 +63,32 @@ const OgmaDocsLayout = defineComponent({
 export default {
   extends: DefaultTheme,
   Layout: OgmaDocsLayout,
-  enhanceApp({ app }) {
+  enhanceApp({ app, router }) {
     app.component('HomeHero', HomeHero)
     app.component('MobileNavSidebar', MobileNavSidebar)
+
+    // Image protection: disable right-click save and drag-and-drop on images
+    if (typeof window !== 'undefined') {
+      const protect = () => {
+        // Block contextmenu (right-click) on images
+        document.addEventListener('contextmenu', (e) => {
+          if ((e.target as HTMLElement).tagName === 'IMG') {
+            e.preventDefault()
+          }
+        }, true)
+        // Block drag start on images (prevents drag-to-desktop)
+        document.addEventListener('dragstart', (e) => {
+          if ((e.target as HTMLElement).tagName === 'IMG') {
+            e.preventDefault()
+          }
+        }, true)
+        // CSS pointer-events alone isn't enough, but add user-select: none for good measure
+        const style = document.createElement('style')
+        style.textContent = 'img { -webkit-user-drag: none; user-drag: none; }'
+        document.head.appendChild(style)
+      }
+      protect()
+      router.onAfterRouteChanged = protect
+    }
   },
 } satisfies Theme

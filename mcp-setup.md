@@ -10,6 +10,9 @@ The Ogma MCP server (`ogma-mcp`) lets compatible AI assistants inspect scoped Og
 
 MCP is for external tools such as Codex, Claude Code, Cursor, and other Model Context Protocol clients. It is not the same feature as the in-app Workspace AI assistant.
 
+<img class="ogma-screenshot ogma-ss-dark" src="/mcp-dark.webp" alt="MCP settings in dark mode" loading="lazy">
+<img class="ogma-screenshot ogma-ss-light" src="/mcp-light.webp" alt="MCP settings in light mode" loading="lazy">
+
 For the full resource and tool list, see [MCP resources and tools](./reference/mcp-tools.md).
 
 ## When to Use MCP

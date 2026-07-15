@@ -8,11 +8,6 @@ keywords: Ogma Replay, web proxy automation, HTTP fuzzing, WebSocket replay, wor
 
 Ogma provides multiple ways to repeat traffic: Replay for individual requests, Automate for high-volume request campaigns, and Workflows for structured multi-step logic.
 
-<div class="screenshot-placeholder">
-  <strong>Screenshot placeholder</strong>
-  <span>Replay, Automate, and Workflows views showing repeated requests, payload runs, and workflow output.</span>
-</div>
-
 ## Replay
 
 Replay is for manually modifying and resending HTTP requests.

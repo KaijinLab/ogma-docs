@@ -8,6 +8,9 @@ keywords: Ogma Sitemap, web application sitemap, proxy site map
 
 Sitemap displays all hosts and paths discovered through captured traffic as an interactive node graph, giving you a structural view of the application under test.
 
+<img class="ogma-screenshot ogma-ss-dark" src="/sitemap-dark.webp" alt="Sitemap in dark mode" loading="lazy">
+<img class="ogma-screenshot ogma-ss-light" src="/sitemap-light.webp" alt="Sitemap in light mode" loading="lazy">
+
 ## The Node Graph
 
 The default view renders hosts as top-level domain nodes with path segments as child nodes. The graph updates as new traffic is captured.

@@ -10,11 +10,6 @@ Ogma is a desktop web security toolkit for intercepting, inspecting, replaying, 
 
 This page gets you from a fresh install to a working proxy session. For a complete first test flow, continue with [First capture](./guide/first-capture.md).
 
-<div class="screenshot-placeholder">
-  <strong>Screenshot placeholder</strong>
-  <span>Ogma launcher with a healthy local instance, proxy listener, API listener, and project selection.</span>
-</div>
-
 ## Requirements
 
 - A supported desktop platform: Linux, Windows, or macOS.
@@ -81,4 +76,4 @@ Ogma checks GitHub Releases for updates.
 ## Need help?
 
 - Open an issue: <https://github.com/KaijinLab/ogma/issues/new/choose>
-- Join Discord: <https://discord.gg/KpyamsWU3>
+- Join Discord: <https://discord.gg/QNSadmjh6y>

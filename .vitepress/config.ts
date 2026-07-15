@@ -207,7 +207,7 @@ export default defineConfig({
     ],
     socialLinks: [
       { icon: 'github', link: githubUrl },
-      { icon: 'discord', link: 'https://discord.gg/KpyamsWU3' },
+      { icon: 'discord', link: 'https://discord.gg/QNSadmjh6y' },
       { icon: 'x', link: 'https://x.com/kaijinlab' }
     ],
     search: {

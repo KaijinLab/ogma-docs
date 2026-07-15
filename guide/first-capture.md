@@ -8,11 +8,6 @@ keywords: Ogma first capture, HTTP history, HTTPS interception, Ogma browser, pr
 
 This guide walks through the first successful traffic capture in Ogma.
 
-<div class="screenshot-placeholder">
-  <strong>Screenshot placeholder</strong>
-  <span>HTTP History showing newly captured browser traffic with request and response inspectors open.</span>
-</div>
-
 ## 1. Start Ogma
 
 1. Open Ogma.

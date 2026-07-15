@@ -8,6 +8,9 @@ keywords: Ogma Intercept, intercept proxy, modify HTTP requests
 
 Intercept pauses traffic in the proxy queue before forwarding it, letting you read and edit each request or response manually.
 
+<img class="ogma-screenshot ogma-ss-dark" src="/intercept-dark.webp" alt="Intercept in dark mode" loading="lazy">
+<img class="ogma-screenshot ogma-ss-light" src="/intercept-light.webp" alt="Intercept in light mode" loading="lazy">
+
 ## Enabling and Disabling Intercept
 
 Click the **Intercept** toggle at the top of the Intercept panel to turn it on or off. When on, matching traffic stops in the queue instead of passing through immediately. When off, all traffic forwards automatically without pausing.

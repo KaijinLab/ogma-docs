@@ -8,6 +8,9 @@ keywords: Ogma Replay, resend HTTP requests, web security testing replay
 
 Replay lets you modify and resend any HTTP request, and tracks every attempt so you can compare how changes affect the response.
 
+<img class="ogma-screenshot ogma-ss-dark" src="/replay-dark.webp" alt="Replay in dark mode" loading="lazy">
+<img class="ogma-screenshot ogma-ss-light" src="/replay-light.webp" alt="Replay in light mode" loading="lazy">
+
 ## Creating a Session
 
 A Replay session holds one request and all its attempts. Create a session in three ways:

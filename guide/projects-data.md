@@ -8,11 +8,6 @@ keywords: Ogma projects, local proxy data, web security exports, HAR import, Ogm
 
 Ogma is local-first. Project data, captured traffic, findings, exports, backups, plugin packages, and local settings live on the workstation running Ogma.
 
-<div class="screenshot-placeholder">
-  <strong>Screenshot placeholder</strong>
-  <span>Project launcher and project data overview with backups, exports, and certificate controls.</span>
-</div>
-
 ## Instances
 
 An instance represents a running Ogma proxy and API process.

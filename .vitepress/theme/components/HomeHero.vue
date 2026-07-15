@@ -9,7 +9,7 @@ const isPreviewOpen = ref(false)
 const zoom = ref(1)
 
 const screenshotSrc = computed(() => (
-  isDark.value ? '/ogma-home-page-dark.png' : '/ogma-home-page-light.png'
+  isDark.value ? '/ogma-home-page-dark.webp' : '/ogma-home-page-light.webp'
 ))
 
 const logoSrc = computed(() => (
@@ -241,12 +241,12 @@ function selectOS(os: OS) {
 
           </div>
 
-          <nav class="dl-secondary">
-            <a class="ogma-button" href="/introduction">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5C5 3.7 5.7 3 6.5 3H20v16.5c0 .8-.7 1.5-1.5 1.5H6.7A2.7 2.7 0 0 1 4 18.3V5.5c0-.6.4-1 1-1Zm1 11.2c.2 0 .5-.1.7-.1H18V5H7v10.6H6Zm.7 1.9a.7.7 0 0 0 0 1.4H18v-1.4H6.7Z"/></svg>
-              Read docs
-            </a>
-          </nav>
+          <div class="dl-divider" aria-hidden="true"></div>
+
+          <a class="ogma-button" href="/introduction">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5C5 3.7 5.7 3 6.5 3H20v16.5c0 .8-.7 1.5-1.5 1.5H6.7A2.7 2.7 0 0 1 4 18.3V5.5c0-.6.4-1 1-1Zm1 11.2c.2 0 .5-.1.7-.1H18V5H7v10.6H6Zm.7 1.9a.7.7 0 0 0 0 1.4H18v-1.4H6.7Z"/></svg>
+            Read docs
+          </a>
         </div>
       </div>
 
@@ -825,7 +825,11 @@ function selectOS(os: OS) {
 }
 
 .dl-primary-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
-.dl-primary-btn:hover { background: var(--vp-c-brand-2); border-color: var(--vp-c-brand-2); }
+.dl-primary-btn:hover {
+  background: var(--vp-c-brand-2);
+  border-color: var(--vp-c-brand-2);
+  color: #fff !important; /* force white text on hover in both themes */
+}
 
 /* Extra format links */
 .dl-extras {
@@ -852,9 +856,10 @@ function selectOS(os: OS) {
 .dl-extra-link--releases { color: var(--vp-c-text-3); }
 .dl-extra-link--releases:hover { color: var(--vp-c-text-1); border-color: var(--vp-c-text-2); }
 
-.dl-secondary {
-  display: flex;
-  gap: 8px;
-  margin-top: 2px;
+.dl-divider {
+  width: 40px;
+  height: 1px;
+  background: var(--vp-c-divider);
+  margin: 6px 0;
 }
 </style>

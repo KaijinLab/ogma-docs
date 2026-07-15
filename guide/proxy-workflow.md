@@ -8,11 +8,6 @@ keywords: Ogma proxy workflow, HTTP history, intercept proxy, match and replace,
 
 Ogma's proxy workflow starts with capture and ends with reusable evidence. The core views are organized around how penetration testers move through traffic: discover, inspect, test, confirm, and report.
 
-<div class="screenshot-placeholder">
-  <strong>Screenshot placeholder</strong>
-  <span>Main proxy workspace with navigation, HTTP History, request inspector, response inspector, and findings workflow.</span>
-</div>
-
 ## Workspace Layout
 
 | Section | Views |
