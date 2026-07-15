@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 const siteTitle = 'Ogma'
 const siteDescription = 'Documentation for Ogma, a local-first web security testing proxy with AI, MCP, automation, scanners, and plugins.'
-const siteUrl = 'https://docs.ogma.app'
+const siteUrl = 'https://ogma.kaijinlab.com'
 const githubUrl = 'https://github.com/KaijinLab/ogma'
 
 function safeJsonLd(data: unknown) {
