@@ -56,48 +56,108 @@ interface DownloadOption {
   note?: string
 }
 
+type Arch = 'x64' | 'arm64'
+
 const detectedOS = ref<OS>('linux')
 const selectedOS = ref<OS>('linux')
+const detectedArch = ref<Arch>('x64')
+const selectedArch = ref<Arch>('x64')
 
-onMounted(() => {
+onMounted(async () => {
   const ua = navigator.userAgent.toLowerCase()
   const os: OS = ua.includes('win') ? 'windows' : ua.includes('mac') ? 'mac' : 'linux'
   detectedOS.value = os
   selectedOS.value = os
+
+  // Detect architecture
+  let arch: Arch = 'x64'
+  try {
+    // Modern browsers: navigator.userAgentData (Chrome/Edge)
+    const uad = (navigator as any).userAgentData
+    if (uad?.getHighEntropyValues) {
+      const hints = await uad.getHighEntropyValues(['architecture'])
+      if (hints.architecture === 'arm') arch = 'arm64'
+    } else {
+      // Fallback: Apple Silicon Macs always run browsers in arm mode;
+      // Windows on ARM often includes 'arm' in the UA
+      if (ua.includes('arm') || ua.includes('aarch64')) arch = 'arm64'
+      // macOS with no architecture hint: assume Apple Silicon for M-series era
+      if (os === 'mac' && !ua.includes('intel')) arch = 'arm64'
+    }
+  } catch {}
+  detectedArch.value = arch
+  selectedArch.value = arch
 })
 
-const allDownloads = computed<Record<OS, DownloadOption[]>>(() => ({
-  windows: [
-    { label: 'Windows x64 installer (.exe)', url: `${BASE}/Ogma-${VERSION}-windows-x64-setup.exe` },
-    { label: 'Windows x64 portable (.exe)', url: `${BASE}/Ogma-${VERSION}-windows-x64-portable.exe` },
-    { label: 'Windows ARM64 installer (.exe)', url: `${BASE}/Ogma-${VERSION}-windows-arm64-setup.exe` },
-    { label: 'Windows ARM64 portable (.exe)', url: `${BASE}/Ogma-${VERSION}-windows-arm64-portable.exe` },
-  ],
-  mac: [
-    { label: 'macOS Apple Silicon (.dmg)', url: `${BASE}/Ogma-${VERSION}-mac-arm64.dmg` },
-    { label: 'macOS Intel (.dmg)', url: `${BASE}/Ogma-${VERSION}-mac-x64.dmg` },
-    { label: 'macOS Apple Silicon (.zip)', url: `${BASE}/Ogma-${VERSION}-mac-arm64.zip` },
-    { label: 'macOS Intel (.zip)', url: `${BASE}/Ogma-${VERSION}-mac-x64.zip` },
-  ],
-  linux: [
-    { label: 'Linux x64 AppImage', url: `${BASE}/Ogma-${VERSION}-linux-x64.AppImage` },
-    { label: 'Linux x64 .deb', url: `${BASE}/Ogma-${VERSION}-linux-x64.deb` },
-    { label: 'Linux ARM64 AppImage', url: `${BASE}/Ogma-${VERSION}-linux-arm64.AppImage` },
-  ],
+// Downloads per OS per arch, with primary first
+interface ArchDownloads {
+  primary: DownloadOption
+  extras: DownloadOption[]
+}
+
+const downloads = computed<Record<OS, Record<Arch, ArchDownloads>>>(() => ({
+  windows: {
+    x64: {
+      primary: { label: 'Download installer  (.exe)', url: `${BASE}/Ogma-${VERSION}-windows-x64-setup.exe` },
+      extras: [
+        { label: 'Portable  (.exe)', url: `${BASE}/Ogma-${VERSION}-windows-x64-portable.exe` },
+      ],
+    },
+    arm64: {
+      primary: { label: 'Download installer  (.exe)', url: `${BASE}/Ogma-${VERSION}-windows-arm64-setup.exe` },
+      extras: [
+        { label: 'Portable  (.exe)', url: `${BASE}/Ogma-${VERSION}-windows-arm64-portable.exe` },
+      ],
+    },
+  },
+  mac: {
+    arm64: {
+      primary: { label: 'Download  (.dmg)', url: `${BASE}/Ogma-${VERSION}-mac-arm64.dmg` },
+      extras: [
+        { label: 'ZIP archive', url: `${BASE}/Ogma-${VERSION}-mac-arm64.zip` },
+      ],
+    },
+    x64: {
+      primary: { label: 'Download  (.dmg)', url: `${BASE}/Ogma-${VERSION}-mac-x64.dmg` },
+      extras: [
+        { label: 'ZIP archive', url: `${BASE}/Ogma-${VERSION}-mac-x64.zip` },
+      ],
+    },
+  },
+  linux: {
+    x64: {
+      primary: { label: 'Download AppImage', url: `${BASE}/Ogma-${VERSION}-linux-x64.AppImage` },
+      extras: [
+        { label: 'Debian / Ubuntu  (.deb)', url: `${BASE}/Ogma-${VERSION}-linux-x64.deb` },
+      ],
+    },
+    arm64: {
+      primary: { label: 'Download AppImage', url: `${BASE}/Ogma-${VERSION}-linux-arm64.AppImage` },
+      extras: [],
+    },
+  },
 }))
 
+const currentDownloads = computed(() => downloads.value[selectedOS.value][selectedArch.value])
 
-// Click-outside directive
-const vClickOutside = {
-  mounted(el: HTMLElement, binding: { value: () => void }) {
-    el._clickOutsideHandler = (e: Event) => {
-      if (!el.contains(e.target as Node)) binding.value()
-    }
-    document.addEventListener('click', el._clickOutsideHandler, true)
-  },
-  unmounted(el: HTMLElement) {
-    document.removeEventListener('click', el._clickOutsideHandler, true)
-  },
+// Which arch labels to show for the selected OS
+const archOptions = computed<{ value: Arch; label: string }[]>(() => {
+  if (selectedOS.value === 'windows') return [{ value: 'x64', label: 'x64' }, { value: 'arm64', label: 'ARM64' }]
+  if (selectedOS.value === 'mac') return [{ value: 'arm64', label: 'Apple Silicon' }, { value: 'x64', label: 'Intel' }]
+  return [{ value: 'x64', label: 'x64' }, { value: 'arm64', label: 'ARM64' }]
+})
+
+// Reset arch to best default when OS tab changes
+function selectOS(os: OS) {
+  selectedOS.value = os
+  // For the detected OS, snap back to detected arch; otherwise pick sensible default
+  if (os === detectedOS.value) {
+    selectedArch.value = detectedArch.value
+  } else if (os === 'mac') {
+    selectedArch.value = 'arm64' // Apple Silicon is now the majority
+  } else {
+    selectedArch.value = 'x64'
+  }
 }
 </script>
 
@@ -127,36 +187,58 @@ const vClickOutside = {
               :class="{ 'dl-tab--active': selectedOS === os }"
               role="tab"
               :aria-selected="selectedOS === os"
-              @click="selectedOS = os"
+              @click="selectOS(os)"
             >
-              <!-- Windows icon -->
               <svg v-if="os === 'windows'" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M3 5.1 10.6 4v7.2H3V5.1Zm0 7.7h7.6V20L3 18.9v-6.1Zm9.2-9 8.8-1.3v8.7h-8.8V3.8Zm0 9H21v8.7l-8.8-1.3v-7.4Z"/></svg>
-              <!-- macOS icon -->
               <svg v-else-if="os === 'mac'" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M16.7 2.2c.1 1.1-.3 2.2-1.1 3.1-.8.9-1.9 1.5-3 1.4-.1-1.1.4-2.2 1.1-3 .8-.9 2-1.5 3-1.5ZM20.2 17c-.4 1-1 2-1.8 3-.9 1.2-1.9 2.5-3.3 2.5-1.3 0-1.7-.8-3.2-.8s-2 .8-3.2.8c-1.4 0-2.5-1.3-3.3-2.5-1.8-2.7-3.1-7.5-1.3-10.8.9-1.6 2.4-2.6 4.1-2.7 1.3 0 2.5.9 3.2.9.8 0 2.2-1.1 3.8-1 1.2 0 3 .5 4.1 2.2-3.6 2-3 7.1.9 8.4Z"/></svg>
-              <!-- Linux icon -->
               <img v-else src="/linux.svg" width="14" height="14" aria-hidden="true">
               {{ os === 'windows' ? 'Windows' : os === 'mac' ? 'macOS' : 'Linux' }}
               <span v-if="os === detectedOS" class="dl-tab__badge">Detected</span>
             </button>
           </div>
 
-          <!-- Download options for selected OS -->
-          <div class="dl-options" role="tabpanel">
-            <a
-              v-for="opt in allDownloads[selectedOS]"
-              :key="opt.url"
-              class="dl-option"
-              :class="{ 'dl-option--primary': opt === allDownloads[selectedOS][0] }"
-              :href="opt.url"
-              download
-            >
+          <!-- Download panel -->
+          <div class="dl-panel" role="tabpanel">
+
+            <!-- Arch toggle pill -->
+            <div class="dl-arch" role="group" :aria-label="`Architecture for ${selectedOS}`">
+              <button
+                v-for="a in archOptions"
+                :key="a.value"
+                class="dl-arch__btn"
+                :class="{
+                  'dl-arch__btn--active': selectedArch === a.value,
+                  'dl-arch__btn--detected': a.value === detectedArch && selectedOS === detectedOS
+                }"
+                @click="selectedArch = a.value"
+              >
+                {{ a.label }}
+                <span v-if="a.value === detectedArch && selectedOS === detectedOS" class="dl-arch__dot" aria-hidden="true"></span>
+              </button>
+            </div>
+
+            <!-- Primary download button -->
+            <a class="dl-primary-btn" :href="currentDownloads.primary.url" download>
               <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 16l-5-5 1.41-1.41L11 13.17V4h2v9.17l3.59-3.58L18 11l-6 6zM5 18h14v2H5v-2z"/></svg>
-              <span>{{ opt.label }}</span>
+              {{ currentDownloads.primary.label }}
             </a>
-            <a class="dl-option dl-option--releases" :href="RELEASES" target="_blank" rel="noopener">
-              <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M10.59 13.41c.41.39.41 1.03 0 1.42-.39.39-1.02.39-1.41 0a5.003 5.003 0 0 1 0-7.07l3.54-3.54a5.003 5.003 0 0 1 7.07 0 5.003 5.003 0 0 1 0 7.07l-1.49 1.49c.01-.82-.12-1.64-.4-2.42l.47-.48a2.982 2.982 0 0 0 0-4.24 2.982 2.982 0 0 0-4.24 0l-3.53 3.53a2.982 2.982 0 0 0 0 4.24zm2.82-4.24c.39-.39 1.02-.39 1.41 0a5.003 5.003 0 0 1 0 7.07l-3.54 3.54a5.003 5.003 0 0 1-7.07 0 5.003 5.003 0 0 1 0-7.07l1.49-1.49c-.01.82.12 1.64.4 2.42l-.47.48a2.982 2.982 0 0 0 0 4.24 2.982 2.982 0 0 0 4.24 0l3.53-3.53a2.982 2.982 0 0 0 0-4.24.973.973 0 0 1 0-1.41z"/></svg>
-              <span>All releases</span>
-            </a>
+
+            <!-- Extra formats -->
+            <div v-if="currentDownloads.extras.length" class="dl-extras">
+              <span class="dl-extras__label">Also available:</span>
+              <a
+                v-for="opt in currentDownloads.extras"
+                :key="opt.url"
+                class="dl-extra-link"
+                :href="opt.url"
+                download
+              >{{ opt.label }}</a>
+              <a class="dl-extra-link dl-extra-link--releases" :href="RELEASES" target="_blank" rel="noopener">All releases ↗</a>
+            </div>
+            <div v-else class="dl-extras">
+              <a class="dl-extra-link dl-extra-link--releases" :href="RELEASES" target="_blank" rel="noopener">All releases ↗</a>
+            </div>
+
           </div>
 
           <nav class="dl-secondary">
@@ -637,11 +719,11 @@ const vClickOutside = {
   margin-top: 28px;
 }
 
+/* Platform tabs */
 .dl-tabs {
   display: flex;
   gap: 0;
   border-bottom: 1px solid var(--vp-c-divider);
-  margin-bottom: 0;
 }
 
 .dl-tab {
@@ -661,29 +743,12 @@ const vClickOutside = {
   white-space: nowrap;
 }
 
-.dl-tab svg, .dl-tab img {
-  width: 14px;
-  height: 14px;
-  opacity: 0.65;
-  flex-shrink: 0;
-}
-
-.dl-tab:hover {
-  color: var(--vp-c-text-1);
-}
-
-.dl-tab--active {
-  color: var(--vp-c-brand-1);
-  border-bottom-color: var(--vp-c-brand-1);
-  font-weight: 600;
-}
-
-.dl-tab--active svg, .dl-tab--active img {
-  opacity: 1;
-}
+.dl-tab svg, .dl-tab img { width: 14px; height: 14px; opacity: 0.65; flex-shrink: 0; }
+.dl-tab:hover { color: var(--vp-c-text-1); }
+.dl-tab--active { color: var(--vp-c-brand-1); border-bottom-color: var(--vp-c-brand-1); font-weight: 600; }
+.dl-tab--active svg, .dl-tab--active img { opacity: 1; }
 
 .dl-tab__badge {
-  display: inline-block;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: .04em;
@@ -694,73 +759,102 @@ const vClickOutside = {
   line-height: 1.4;
 }
 
-.dl-options {
+/* Download panel */
+.dl-panel {
+  padding: 14px 0 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 12px 0 0;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.dl-option {
+/* Arch toggle pill */
+.dl-arch {
+  display: inline-flex;
+  border: 1px solid var(--vp-c-divider);
+  overflow: hidden;
+  width: fit-content;
+}
+
+.dl-arch__btn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 16px;
-  font-size: 13px;
+  gap: 5px;
+  padding: 4px 12px;
+  font-size: 11px;
   font-weight: 500;
-  text-decoration: none;
-  border: 1px solid var(--vp-c-divider);
-  color: var(--vp-c-text-1);
-  background: var(--vp-c-bg-soft);
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  color: var(--vp-c-text-2);
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--vp-c-divider);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
   white-space: nowrap;
 }
 
-.dl-option svg {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-  opacity: 0.7;
-}
+.dl-arch__btn:last-child { border-right: none; }
+.dl-arch__btn:hover { color: var(--vp-c-text-1); background: var(--vp-c-bg-soft); }
 
-.dl-option:hover {
-  border-color: var(--vp-c-brand-1);
-  color: var(--vp-c-brand-1);
-  background: var(--vp-c-brand-soft);
-}
-
-.dl-option--primary {
-  border-color: var(--vp-c-brand-1);
-  background: var(--vp-c-brand-1);
-  color: #fff;
+.dl-arch__btn--active {
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-1);
   font-weight: 600;
 }
 
-.dl-option--primary svg {
-  opacity: 1;
+.dl-arch__dot {
+  width: 5px;
+  height: 5px;
+  background: var(--vp-c-brand-1);
+  border-radius: 50%;
+  display: inline-block;
 }
 
-.dl-option--primary:hover {
-  background: var(--vp-c-brand-2);
-  border-color: var(--vp-c-brand-2);
+/* Primary download button */
+.dl-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  font-size: 14px;
+  font-weight: 600;
   color: #fff;
+  background: var(--vp-c-brand-1);
+  border: 1px solid var(--vp-c-brand-1);
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+  width: fit-content;
 }
 
-.dl-option--releases {
+.dl-primary-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+.dl-primary-btn:hover { background: var(--vp-c-brand-2); border-color: var(--vp-c-brand-2); }
+
+/* Extra format links */
+.dl-extras {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.dl-extras__label {
+  font-size: 11px;
   color: var(--vp-c-text-3);
-  font-size: 12px;
-  padding: 8px 12px;
 }
 
-.dl-option--releases:hover {
-  color: var(--vp-c-text-1);
-  border-color: var(--vp-c-text-2);
-  background: var(--vp-c-bg-soft);
+.dl-extra-link {
+  font-size: 12px;
+  color: var(--vp-c-text-2);
+  text-decoration: none;
+  border-bottom: 1px solid var(--vp-c-divider);
+  transition: color 0.12s, border-color 0.12s;
 }
+
+.dl-extra-link:hover { color: var(--vp-c-brand-1); border-color: var(--vp-c-brand-1); }
+.dl-extra-link--releases { color: var(--vp-c-text-3); }
+.dl-extra-link--releases:hover { color: var(--vp-c-text-1); border-color: var(--vp-c-text-2); }
 
 .dl-secondary {
   display: flex;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 2px;
 }
 </style>
