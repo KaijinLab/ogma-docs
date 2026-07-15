@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useData } from 'vitepress'
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 
 const { isDark } = useData()
 
@@ -41,6 +41,94 @@ const zoomOut = () => {
 const resetZoom = () => {
   zoom.value = 1
 }
+
+// ── Download button with OS detection ────────────────────────────────────────
+
+const VERSION = '0.1.0'
+const BASE = `https://github.com/KaijinLab/ogma/releases/download/v${VERSION}`
+const RELEASES = 'https://github.com/KaijinLab/ogma/releases/latest'
+
+type OS = 'windows' | 'mac' | 'linux'
+
+interface DownloadOption {
+  label: string
+  url: string
+  note?: string
+}
+
+const detectedOS = ref<OS>('linux')
+const altOpen = ref(false)
+
+onMounted(() => {
+  const ua = navigator.userAgent.toLowerCase()
+  if (ua.includes('win')) detectedOS.value = 'windows'
+  else if (ua.includes('mac')) detectedOS.value = 'mac'
+  else detectedOS.value = 'linux'
+})
+
+const primaryDownload = computed<DownloadOption>(() => {
+  if (detectedOS.value === 'windows') {
+    return { label: 'Download for Windows', url: `${BASE}/Ogma-${VERSION}-windows-x64-setup.exe`, note: 'Windows x64 installer' }
+  }
+  if (detectedOS.value === 'mac') {
+    // Detect Apple Silicon vs Intel
+    const isArm = navigator.userAgent.includes('Mac') && (navigator as any).userAgentData?.architecture === 'arm'
+    return isArm
+      ? { label: 'Download for macOS', url: `${BASE}/Ogma-${VERSION}-mac-arm64.dmg`, note: 'Apple Silicon (M1/M2/M3)' }
+      : { label: 'Download for macOS', url: `${BASE}/Ogma-${VERSION}-mac-x64.dmg`, note: 'Intel Mac' }
+  }
+  return { label: 'Download for Linux', url: `${BASE}/Ogma-${VERSION}-linux-x64.AppImage`, note: 'Linux x64 AppImage' }
+})
+
+const allDownloads = computed<Record<OS, DownloadOption[]>>(() => ({
+  windows: [
+    { label: 'Windows x64 installer (.exe)', url: `${BASE}/Ogma-${VERSION}-windows-x64-setup.exe` },
+    { label: 'Windows x64 portable (.exe)', url: `${BASE}/Ogma-${VERSION}-windows-x64-portable.exe` },
+    { label: 'Windows ARM64 installer (.exe)', url: `${BASE}/Ogma-${VERSION}-windows-arm64-setup.exe` },
+    { label: 'Windows ARM64 portable (.exe)', url: `${BASE}/Ogma-${VERSION}-windows-arm64-portable.exe` },
+  ],
+  mac: [
+    { label: 'macOS Apple Silicon (.dmg)', url: `${BASE}/Ogma-${VERSION}-mac-arm64.dmg` },
+    { label: 'macOS Intel (.dmg)', url: `${BASE}/Ogma-${VERSION}-mac-x64.dmg` },
+    { label: 'macOS Apple Silicon (.zip)', url: `${BASE}/Ogma-${VERSION}-mac-arm64.zip` },
+    { label: 'macOS Intel (.zip)', url: `${BASE}/Ogma-${VERSION}-mac-x64.zip` },
+  ],
+  linux: [
+    { label: 'Linux x64 AppImage', url: `${BASE}/Ogma-${VERSION}-linux-x64.AppImage` },
+    { label: 'Linux x64 .deb', url: `${BASE}/Ogma-${VERSION}-linux-x64.deb` },
+    { label: 'Linux ARM64 AppImage', url: `${BASE}/Ogma-${VERSION}-linux-arm64.AppImage` },
+  ],
+}))
+
+const otherOS = computed<{ label: string; os: OS }[]>(() => {
+  const all: { label: string; os: OS }[] = [
+    { label: 'Windows', os: 'windows' },
+    { label: 'macOS', os: 'mac' },
+    { label: 'Linux', os: 'linux' },
+  ]
+  return all.filter(o => o.os !== detectedOS.value)
+})
+
+function toggleAlt() {
+  altOpen.value = !altOpen.value
+}
+
+function closeAlt() {
+  altOpen.value = false
+}
+
+// Click-outside directive
+const vClickOutside = {
+  mounted(el: HTMLElement, binding: { value: () => void }) {
+    el._clickOutsideHandler = (e: Event) => {
+      if (!el.contains(e.target as Node)) binding.value()
+    }
+    document.addEventListener('click', el._clickOutsideHandler, true)
+  },
+  unmounted(el: HTMLElement) {
+    document.removeEventListener('click', el._clickOutsideHandler, true)
+  },
+}
 </script>
 
 <template>
@@ -60,22 +148,64 @@ const resetZoom = () => {
         </p>
 
         <nav class="home-hero__actions" aria-label="Download and documentation links">
-          <a class="ogma-button ogma-button--primary" href="https://github.com/KaijinLab/ogma/releases">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.1 10.6 4v7.2H3V5.1Zm0 7.7h7.6V20L3 18.9v-6.1Zm9.2-9 8.8-1.3v8.7h-8.8V3.8Zm0 9H21v8.7l-8.8-1.3v-7.4Z"/></svg>
-            Windows
-          </a>
-          <a class="ogma-button ogma-button--primary" href="https://github.com/KaijinLab/ogma/releases">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.7 2.2c.1 1.1-.3 2.2-1.1 3.1-.8.9-1.9 1.5-3 1.4-.1-1.1.4-2.2 1.1-3 .8-.9 2-1.5 3-1.5ZM20.2 17c-.4 1-1 2-1.8 3-.9 1.2-1.9 2.5-3.3 2.5-1.3 0-1.7-.8-3.2-.8s-2 .8-3.2.8c-1.4 0-2.5-1.3-3.3-2.5-1.8-2.7-3.1-7.5-1.3-10.8.9-1.6 2.4-2.6 4.1-2.7 1.3 0 2.5.9 3.2.9.8 0 2.2-1.1 3.8-1 1.2 0 3 .5 4.1 2.2-3.6 2-3 7.1.9 8.4Z"/></svg>
-            macOS
-          </a>
-          <a class="ogma-button ogma-button--primary" href="https://github.com/KaijinLab/ogma/releases">
-            <img class="ogma-button__icon" src="/linux.svg" alt="" aria-hidden="true">
-            Linux .deb
-          </a>
-          <a class="ogma-button ogma-button--primary" href="https://github.com/KaijinLab/ogma/releases">
-            <img class="ogma-button__icon" src="/linux.svg" alt="" aria-hidden="true">
-            Linux AppImage
-          </a>
+
+          <!-- Primary download: auto-detected OS -->
+          <div class="dl-group">
+            <a class="ogma-button ogma-button--primary dl-primary" :href="primaryDownload.url" download>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16l-5-5 1.4-1.4 2.6 2.6V4h2v8.2l2.6-2.6L17 11l-5 5zm-7 2h14v2H5v-2z"/></svg>
+              {{ primaryDownload.label }}
+            </a>
+            <button
+              class="dl-alt-toggle"
+              :aria-expanded="altOpen"
+              aria-haspopup="listbox"
+              @click="toggleAlt"
+              :title="`Other downloads for ${detectedOS}`"
+            >
+              <span class="dl-alt-note">{{ primaryDownload.note }}</span>
+              <svg class="dl-alt-chevron" :class="{ 'dl-alt-chevron--open': altOpen }" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg>
+            </button>
+
+            <!-- Dropdown: all variants for detected OS + links to other OSes -->
+            <div v-if="altOpen" class="dl-dropdown" role="listbox" v-click-outside="closeAlt">
+              <div class="dl-dropdown__section">
+                <div class="dl-dropdown__heading">{{ detectedOS === 'windows' ? 'Windows' : detectedOS === 'mac' ? 'macOS' : 'Linux' }}</div>
+                <a
+                  v-for="opt in allDownloads[detectedOS]"
+                  :key="opt.url"
+                  class="dl-dropdown__item"
+                  :href="opt.url"
+                  download
+                  @click="closeAlt"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16l-5-5 1.4-1.4 2.6 2.6V4h2v8.2l2.6-2.6L17 11l-5 5zm-7 2h14v2H5v-2z"/></svg>
+                  {{ opt.label }}
+                </a>
+              </div>
+              <div class="dl-dropdown__divider"></div>
+              <div class="dl-dropdown__section">
+                <div class="dl-dropdown__heading">Other platforms</div>
+                <div v-for="os in otherOS" :key="os.os">
+                  <a
+                    v-for="opt in allDownloads[os.os].slice(0, 1)"
+                    :key="opt.url"
+                    class="dl-dropdown__item"
+                    :href="opt.url"
+                    download
+                    @click="closeAlt"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16l-5-5 1.4-1.4 2.6 2.6V4h2v8.2l2.6-2.6L17 11l-5 5zm-7 2h14v2H5v-2z"/></svg>
+                    {{ opt.label }}
+                  </a>
+                </div>
+                <a class="dl-dropdown__item dl-dropdown__item--muted" :href="RELEASES" target="_blank" rel="noopener" @click="closeAlt">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6v2H5v11h11v-5h2v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6zm11-3v8l-3.5-3.5-5 5L11 11l5-5L12.5 3H21z"/></svg>
+                  All releases on GitHub
+                </a>
+              </div>
+            </div>
+          </div>
+
           <a class="ogma-button" href="/introduction">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5C5 3.7 5.7 3 6.5 3H20v16.5c0 .8-.7 1.5-1.5 1.5H6.7A2.7 2.7 0 0 1 4 18.3V5.5c0-.6.4-1 1-1Zm1 11.2c.2 0 .5-.1.7-.1H18V5H7v10.6H6Zm.7 1.9a.7.7 0 0 0 0 1.4H18v-1.4H6.7Z"/></svg>
             Read docs
@@ -547,4 +677,129 @@ const resetZoom = () => {
   }
 }
 
+/* ── Download group ─────────────────────────────────────────────────────── */
+.dl-group {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: 8px;
+}
+
+.dl-primary {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  padding-right: 14px;
+}
+
+.dl-alt-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 10px;
+  border: 1px solid var(--vp-button-brand-border, rgba(255,255,255,.15));
+  border-left: 1px solid rgba(255,255,255,.15);
+  border-radius: 0 8px 8px 0;
+  background: var(--vp-button-brand-bg, var(--vp-c-brand-1));
+  color: var(--vp-button-brand-text, #fff);
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+  transition: background 0.2s;
+}
+
+.dl-alt-toggle:hover {
+  background: var(--vp-button-brand-hover-bg, var(--vp-c-brand-2));
+}
+
+.dl-alt-note {
+  opacity: 0.75;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.dl-alt-chevron {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  transition: transform 0.2s;
+}
+
+.dl-alt-chevron--open {
+  transform: rotate(180deg);
+}
+
+.dl-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 260px;
+  background: var(--vp-c-bg-elv);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.18);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.dl-dropdown__section {
+  padding: 6px 0;
+}
+
+.dl-dropdown__heading {
+  padding: 4px 14px 2px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--vp-c-text-3);
+}
+
+.dl-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  color: var(--vp-c-text-1);
+  text-decoration: none;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.dl-dropdown__item svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  fill: currentColor;
+  opacity: 0.6;
+}
+
+.dl-dropdown__item:hover {
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-brand-1);
+}
+
+.dl-dropdown__item--muted {
+  color: var(--vp-c-text-3);
+  font-size: 12px;
+}
+
+.dl-dropdown__divider {
+  height: 1px;
+  background: var(--vp-c-divider);
+  margin: 0 10px;
+}
+
+@media (max-width: 480px) {
+  .dl-dropdown {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90vw;
+  }
+  .dl-alt-note {
+    display: none;
+  }
+}
 </style>
