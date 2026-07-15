@@ -57,27 +57,13 @@ interface DownloadOption {
 }
 
 const detectedOS = ref<OS>('linux')
-const altOpen = ref(false)
+const selectedOS = ref<OS>('linux')
 
 onMounted(() => {
   const ua = navigator.userAgent.toLowerCase()
-  if (ua.includes('win')) detectedOS.value = 'windows'
-  else if (ua.includes('mac')) detectedOS.value = 'mac'
-  else detectedOS.value = 'linux'
-})
-
-const primaryDownload = computed<DownloadOption>(() => {
-  if (detectedOS.value === 'windows') {
-    return { label: 'Download for Windows', url: `${BASE}/Ogma-${VERSION}-windows-x64-setup.exe`, note: 'Windows x64 installer' }
-  }
-  if (detectedOS.value === 'mac') {
-    // Detect Apple Silicon vs Intel
-    const isArm = navigator.userAgent.includes('Mac') && (navigator as any).userAgentData?.architecture === 'arm'
-    return isArm
-      ? { label: 'Download for macOS', url: `${BASE}/Ogma-${VERSION}-mac-arm64.dmg`, note: 'Apple Silicon (M1/M2/M3)' }
-      : { label: 'Download for macOS', url: `${BASE}/Ogma-${VERSION}-mac-x64.dmg`, note: 'Intel Mac' }
-  }
-  return { label: 'Download for Linux', url: `${BASE}/Ogma-${VERSION}-linux-x64.AppImage`, note: 'Linux x64 AppImage' }
+  const os: OS = ua.includes('win') ? 'windows' : ua.includes('mac') ? 'mac' : 'linux'
+  detectedOS.value = os
+  selectedOS.value = os
 })
 
 const allDownloads = computed<Record<OS, DownloadOption[]>>(() => ({
@@ -100,22 +86,6 @@ const allDownloads = computed<Record<OS, DownloadOption[]>>(() => ({
   ],
 }))
 
-const otherOS = computed<{ label: string; os: OS }[]>(() => {
-  const all: { label: string; os: OS }[] = [
-    { label: 'Windows', os: 'windows' },
-    { label: 'macOS', os: 'mac' },
-    { label: 'Linux', os: 'linux' },
-  ]
-  return all.filter(o => o.os !== detectedOS.value)
-})
-
-function toggleAlt() {
-  altOpen.value = !altOpen.value
-}
-
-function closeAlt() {
-  altOpen.value = false
-}
 
 // Click-outside directive
 const vClickOutside = {
@@ -147,70 +117,55 @@ const vClickOutside = {
           Intercept, replay, scan, automate, and extend HTTP workflows from one lightweight desktop app.
         </p>
 
-        <nav class="home-hero__actions" aria-label="Download and documentation links">
-
-          <!-- Primary download: auto-detected OS -->
-          <div class="dl-group">
-            <a class="ogma-button ogma-button--primary dl-primary" :href="primaryDownload.url" download>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16l-5-5 1.4-1.4 2.6 2.6V4h2v8.2l2.6-2.6L17 11l-5 5zm-7 2h14v2H5v-2z"/></svg>
-              {{ primaryDownload.label }}
-            </a>
+        <div class="dl-block">
+          <!-- OS tabs -->
+          <div class="dl-tabs" role="tablist" aria-label="Select platform">
             <button
-              class="dl-alt-toggle"
-              :aria-expanded="altOpen"
-              aria-haspopup="listbox"
-              @click="toggleAlt"
-              :title="`Other downloads for ${detectedOS}`"
+              v-for="os in (['windows', 'mac', 'linux'] as OS[])"
+              :key="os"
+              class="dl-tab"
+              :class="{ 'dl-tab--active': selectedOS === os }"
+              role="tab"
+              :aria-selected="selectedOS === os"
+              @click="selectedOS = os"
             >
-              <span class="dl-alt-note">{{ primaryDownload.note }}</span>
-              <svg class="dl-alt-chevron" :class="{ 'dl-alt-chevron--open': altOpen }" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg>
+              <!-- Windows icon -->
+              <svg v-if="os === 'windows'" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M3 5.1 10.6 4v7.2H3V5.1Zm0 7.7h7.6V20L3 18.9v-6.1Zm9.2-9 8.8-1.3v8.7h-8.8V3.8Zm0 9H21v8.7l-8.8-1.3v-7.4Z"/></svg>
+              <!-- macOS icon -->
+              <svg v-else-if="os === 'mac'" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M16.7 2.2c.1 1.1-.3 2.2-1.1 3.1-.8.9-1.9 1.5-3 1.4-.1-1.1.4-2.2 1.1-3 .8-.9 2-1.5 3-1.5ZM20.2 17c-.4 1-1 2-1.8 3-.9 1.2-1.9 2.5-3.3 2.5-1.3 0-1.7-.8-3.2-.8s-2 .8-3.2.8c-1.4 0-2.5-1.3-3.3-2.5-1.8-2.7-3.1-7.5-1.3-10.8.9-1.6 2.4-2.6 4.1-2.7 1.3 0 2.5.9 3.2.9.8 0 2.2-1.1 3.8-1 1.2 0 3 .5 4.1 2.2-3.6 2-3 7.1.9 8.4Z"/></svg>
+              <!-- Linux icon -->
+              <img v-else src="/linux.svg" width="14" height="14" aria-hidden="true">
+              {{ os === 'windows' ? 'Windows' : os === 'mac' ? 'macOS' : 'Linux' }}
+              <span v-if="os === detectedOS" class="dl-tab__badge">Detected</span>
             </button>
-
-            <!-- Dropdown: all variants for detected OS + links to other OSes -->
-            <div v-if="altOpen" class="dl-dropdown" role="listbox" v-click-outside="closeAlt">
-              <div class="dl-dropdown__section">
-                <div class="dl-dropdown__heading">{{ detectedOS === 'windows' ? 'Windows' : detectedOS === 'mac' ? 'macOS' : 'Linux' }}</div>
-                <a
-                  v-for="opt in allDownloads[detectedOS]"
-                  :key="opt.url"
-                  class="dl-dropdown__item"
-                  :href="opt.url"
-                  download
-                  @click="closeAlt"
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16l-5-5 1.4-1.4 2.6 2.6V4h2v8.2l2.6-2.6L17 11l-5 5zm-7 2h14v2H5v-2z"/></svg>
-                  {{ opt.label }}
-                </a>
-              </div>
-              <div class="dl-dropdown__divider"></div>
-              <div class="dl-dropdown__section">
-                <div class="dl-dropdown__heading">Other platforms</div>
-                <div v-for="os in otherOS" :key="os.os">
-                  <a
-                    v-for="opt in allDownloads[os.os].slice(0, 1)"
-                    :key="opt.url"
-                    class="dl-dropdown__item"
-                    :href="opt.url"
-                    download
-                    @click="closeAlt"
-                  >
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16l-5-5 1.4-1.4 2.6 2.6V4h2v8.2l2.6-2.6L17 11l-5 5zm-7 2h14v2H5v-2z"/></svg>
-                    {{ opt.label }}
-                  </a>
-                </div>
-                <a class="dl-dropdown__item dl-dropdown__item--muted" :href="RELEASES" target="_blank" rel="noopener" @click="closeAlt">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6v2H5v11h11v-5h2v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6zm11-3v8l-3.5-3.5-5 5L11 11l5-5L12.5 3H21z"/></svg>
-                  All releases on GitHub
-                </a>
-              </div>
-            </div>
           </div>
 
-          <a class="ogma-button" href="/introduction">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5C5 3.7 5.7 3 6.5 3H20v16.5c0 .8-.7 1.5-1.5 1.5H6.7A2.7 2.7 0 0 1 4 18.3V5.5c0-.6.4-1 1-1Zm1 11.2c.2 0 .5-.1.7-.1H18V5H7v10.6H6Zm.7 1.9a.7.7 0 0 0 0 1.4H18v-1.4H6.7Z"/></svg>
-            Read docs
-          </a>
-        </nav>
+          <!-- Download options for selected OS -->
+          <div class="dl-options" role="tabpanel">
+            <a
+              v-for="opt in allDownloads[selectedOS]"
+              :key="opt.url"
+              class="dl-option"
+              :class="{ 'dl-option--primary': opt === allDownloads[selectedOS][0] }"
+              :href="opt.url"
+              download
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 16l-5-5 1.41-1.41L11 13.17V4h2v9.17l3.59-3.58L18 11l-6 6zM5 18h14v2H5v-2z"/></svg>
+              <span>{{ opt.label }}</span>
+            </a>
+            <a class="dl-option dl-option--releases" :href="RELEASES" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M10.59 13.41c.41.39.41 1.03 0 1.42-.39.39-1.02.39-1.41 0a5.003 5.003 0 0 1 0-7.07l3.54-3.54a5.003 5.003 0 0 1 7.07 0 5.003 5.003 0 0 1 0 7.07l-1.49 1.49c.01-.82-.12-1.64-.4-2.42l.47-.48a2.982 2.982 0 0 0 0-4.24 2.982 2.982 0 0 0-4.24 0l-3.53 3.53a2.982 2.982 0 0 0 0 4.24zm2.82-4.24c.39-.39 1.02-.39 1.41 0a5.003 5.003 0 0 1 0 7.07l-3.54 3.54a5.003 5.003 0 0 1-7.07 0 5.003 5.003 0 0 1 0-7.07l1.49-1.49c-.01.82.12 1.64.4 2.42l-.47.48a2.982 2.982 0 0 0 0 4.24 2.982 2.982 0 0 0 4.24 0l3.53-3.53a2.982 2.982 0 0 0 0-4.24.973.973 0 0 1 0-1.41z"/></svg>
+              <span>All releases</span>
+            </a>
+          </div>
+
+          <nav class="dl-secondary">
+            <a class="ogma-button" href="/introduction">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5C5 3.7 5.7 3 6.5 3H20v16.5c0 .8-.7 1.5-1.5 1.5H6.7A2.7 2.7 0 0 1 4 18.3V5.5c0-.6.4-1 1-1Zm1 11.2c.2 0 .5-.1.7-.1H18V5H7v10.6H6Zm.7 1.9a.7.7 0 0 0 0 1.4H18v-1.4H6.7Z"/></svg>
+              Read docs
+            </a>
+          </nav>
+        </div>
       </div>
 
       <div class="home-hero__visual" aria-label="Ogma application preview">
@@ -677,129 +632,135 @@ const vClickOutside = {
   }
 }
 
-/* ── Download group ─────────────────────────────────────────────────────── */
-.dl-group {
-  position: relative;
-  display: inline-flex;
-  align-items: stretch;
-  border-radius: 8px;
+/* ── Download block ──────────────────────────────────────────────────────── */
+.dl-block {
+  margin-top: 28px;
 }
 
-.dl-primary {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  padding-right: 14px;
+.dl-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--vp-c-divider);
+  margin-bottom: 0;
 }
 
-.dl-alt-toggle {
+.dl-tab {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 0 10px;
-  border: 1px solid var(--vp-button-brand-border, rgba(255,255,255,.15));
-  border-left: 1px solid rgba(255,255,255,.15);
-  border-radius: 0 8px 8px 0;
-  background: var(--vp-button-brand-bg, var(--vp-c-brand-1));
-  color: var(--vp-button-brand-text, #fff);
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--vp-c-text-2);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
   cursor: pointer;
-  font-size: 11px;
-  line-height: 1;
-  transition: background 0.2s;
-}
-
-.dl-alt-toggle:hover {
-  background: var(--vp-button-brand-hover-bg, var(--vp-c-brand-2));
-}
-
-.dl-alt-note {
-  opacity: 0.75;
-  font-size: 10px;
+  transition: color 0.15s, border-color 0.15s;
   white-space: nowrap;
 }
 
-.dl-alt-chevron {
+.dl-tab svg, .dl-tab img {
   width: 14px;
   height: 14px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2;
-  transition: transform 0.2s;
+  opacity: 0.65;
+  flex-shrink: 0;
 }
 
-.dl-alt-chevron--open {
-  transform: rotate(180deg);
-}
-
-.dl-dropdown {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  min-width: 260px;
-  background: var(--vp-c-bg-elv);
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 10px;
-  box-shadow: 0 8px 32px rgba(0,0,0,.18);
-  z-index: 100;
-  overflow: hidden;
-}
-
-.dl-dropdown__section {
-  padding: 6px 0;
-}
-
-.dl-dropdown__heading {
-  padding: 4px 14px 2px;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  color: var(--vp-c-text-3);
-}
-
-.dl-dropdown__item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 14px;
-  font-size: 13px;
+.dl-tab:hover {
   color: var(--vp-c-text-1);
-  text-decoration: none;
-  transition: background 0.15s;
-  cursor: pointer;
 }
 
-.dl-dropdown__item svg {
+.dl-tab--active {
+  color: var(--vp-c-brand-1);
+  border-bottom-color: var(--vp-c-brand-1);
+  font-weight: 600;
+}
+
+.dl-tab--active svg, .dl-tab--active img {
+  opacity: 1;
+}
+
+.dl-tab__badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 1px 4px;
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+  line-height: 1.4;
+}
+
+.dl-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px 0 0;
+}
+
+.dl-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1px solid var(--vp-c-divider);
+  color: var(--vp-c-text-1);
+  background: var(--vp-c-bg-soft);
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.dl-option svg {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
-  fill: currentColor;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
-.dl-dropdown__item:hover {
-  background: var(--vp-c-bg-soft);
+.dl-option:hover {
+  border-color: var(--vp-c-brand-1);
   color: var(--vp-c-brand-1);
+  background: var(--vp-c-brand-soft);
 }
 
-.dl-dropdown__item--muted {
+.dl-option--primary {
+  border-color: var(--vp-c-brand-1);
+  background: var(--vp-c-brand-1);
+  color: #fff;
+  font-weight: 600;
+}
+
+.dl-option--primary svg {
+  opacity: 1;
+}
+
+.dl-option--primary:hover {
+  background: var(--vp-c-brand-2);
+  border-color: var(--vp-c-brand-2);
+  color: #fff;
+}
+
+.dl-option--releases {
   color: var(--vp-c-text-3);
   font-size: 12px;
+  padding: 8px 12px;
 }
 
-.dl-dropdown__divider {
-  height: 1px;
-  background: var(--vp-c-divider);
-  margin: 0 10px;
+.dl-option--releases:hover {
+  color: var(--vp-c-text-1);
+  border-color: var(--vp-c-text-2);
+  background: var(--vp-c-bg-soft);
 }
 
-@media (max-width: 480px) {
-  .dl-dropdown {
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90vw;
-  }
-  .dl-alt-note {
-    display: none;
-  }
+.dl-secondary {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
 }
 </style>
