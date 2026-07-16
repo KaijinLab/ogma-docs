@@ -172,7 +172,7 @@ function selectOS(os: OS) {
           <img class="home-hero__logo" :src="logoSrc" alt="">
           <span>Ogma</span>
         </div>
-        <p class="home-hero__headline">A lightweight, open-source local proxy for web security testing.</p>
+        <p class="home-hero__headline">A lightweight, local proxy for web security testing.</p>
         <p class="home-hero__line">
           Intercept, replay, scan, automate, and extend HTTP workflows from one lightweight desktop app.
         </p>

@@ -6,14 +6,14 @@ keywords: Ogma vs Burp Suite, Burp Suite alternative, web proxy comparison, secu
 
 # Ogma vs Burp Suite
 
-Burp Suite is the established industry standard for web security testing, with a large extension library and over a decade of production use. Ogma is a newer, open-source alternative that covers the same core workflows without a license cost. This page compares them factually.
+Burp Suite is the established industry standard for web security testing, with a large extension library and over a decade of production use. Ogma is a newer alternative that covers the same core workflows. This page compares them factually.
 
 ## Summary
 
 | Feature | Ogma | Burp Suite Community | Burp Suite Professional |
 |---------|------|----------------------|------------------------|
-| Price | Free (AGPLv3) | Free | $499/yr per seat |
-| License | Open-source | Proprietary (free tier) | Proprietary |
+| Price | Free to use | Free | $499/yr per seat |
+| License | Proprietary | Proprietary (free tier) | Proprietary |
 | Account required | No | Yes | Yes |
 | Platform | Linux, macOS, Windows | Linux, macOS, Windows | Linux, macOS, Windows |
 | Tech stack | Rust backend, Vue frontend | Java (Swing UI) | Java (Swing UI) |
@@ -37,7 +37,7 @@ Burp Suite is the established industry standard for web security testing, with a
 
 Burp Suite Community is free but removes the scanner entirely and applies intentional rate limiting to Intruder attacks, which makes it unsuitable for anything beyond basic manual testing. Burp Suite Professional costs $499/year per seat and enables the scanner and unlimited Intruder. Burp Suite Enterprise adds automated DAST at custom pricing.
 
-Ogma is free and open-source. All features - scanner, fuzzing, workflows, AI assistant - are available with no license.
+Ogma is free to use. All features - scanner, fuzzing, workflows, AI assistant - are available with no subscription.
 
 ## Features in depth
 
@@ -83,6 +83,6 @@ Ogma's `ogma pentest <url>` command runs a crawl-and-scan pass from the command 
 
 ## Which to choose
 
-- **Choose Ogma if:** cost is a factor, you want an open-source tool with no vendor lock-in, you need AI and MCP integration, or you want a built-in CLI mode for automation.
+- **Choose Ogma if:** cost is a factor, you want a tool with no vendor lock-in, you need AI and MCP integration, or you want a built-in CLI mode for automation.
 - **Choose Burp Suite Professional if:** you need the most battle-tested scanner available, you rely on the BApp Store extension library, your team already knows Burp workflows, or your organization requires a Gartner-recognized commercial product.
 - **Note on Burp Community:** It is a reasonable starting point for learning proxy concepts, but the Intruder rate limiting and absent scanner limit it to introductory use. Ogma is a more capable free alternative for day-to-day testing.

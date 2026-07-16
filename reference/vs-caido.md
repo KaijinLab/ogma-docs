@@ -12,8 +12,8 @@ Both Ogma and Caido are modern web security proxies built as alternatives to Bur
 
 | Feature | Ogma | Caido |
 |---------|------|-------|
-| Price | Free and open-source (AGPLv3) | Free tier (limited); Individual ~$200/yr; Team and Enterprise tiers |
-| License | AGPLv3 | Commercial |
+| Price | Free to use | Free tier (limited); Individual ~$200/yr; Team and Enterprise tiers |
+| License | Proprietary | Commercial |
 | Account required | No | Yes |
 | Platform | Linux, macOS, Windows | Linux, macOS, Windows |
 | HTTPS proxy | Yes | Yes |
@@ -35,7 +35,7 @@ Both Ogma and Caido are modern web security proxies built as alternatives to Bur
 
 ## Pricing and access
 
-Ogma is free and open-source under AGPLv3. There is no account, no license key, and no feature gating. Every feature - scanner, workflows, plugins, AI assistant - is available without a subscription.
+Ogma is free to use. There is no account, no license key, and no feature gating. Every feature - scanner, workflows, plugins, AI assistant - is available without a subscription.
 
 Caido has a free tier that limits you to 2 projects and 7 workflows. The Individual plan (~$200/year) removes those limits and adds team collaboration features. Team and Enterprise plans exist for shared workspaces and enterprise support.
 
@@ -87,5 +87,5 @@ Both tools support running without a GUI. Ogma server mode starts the proxy and 
 
 ## Which to choose
 
-- **Choose Ogma if:** open-source is a requirement, you prefer no account or subscription, you need a built-in active scanner and content discovery, or you want to drive testing from external AI agents via MCP.
+- **Choose Ogma if:** no subscription is a requirement, you prefer no account or subscription, you need a built-in active scanner and content discovery, or you want to drive testing from external AI agents via MCP.
 - **Choose Caido if:** you want a polished commercial product with a larger plugin ecosystem, team and enterprise collaboration features, or a vendor-supported subscription.

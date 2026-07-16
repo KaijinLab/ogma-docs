@@ -218,7 +218,7 @@ export default defineConfig({
       text: 'Edit this page on GitHub'
     },
     footer: {
-      message: 'Released under the GNU AGPLv3 license.',
+      message: 'Proprietary software. All rights reserved.',
       copyright: 'Copyright © 2024-present Kaijin Lab'
     },
     outline: {

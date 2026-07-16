@@ -24,7 +24,7 @@
 
 ---
 
-Documentation for [Ogma](https://github.com/KaijinLab/ogma), the open-source local-first web security testing proxy.
+Documentation for [Ogma](https://ogma.kaijinlab.com), the local-first web security testing proxy.
 
 Built with [VitePress](https://vitepress.dev).
 
@@ -80,4 +80,4 @@ Documentation is deployed automatically to [ogma.kaijinlab.com](https://ogma.kai
 
 Documentation text is licensed under [CC BY 4.0](LICENSE). Screenshots and images are copyright Kaijin Lab.
 
-The Ogma application itself is licensed under [AGPL-3.0](https://github.com/KaijinLab/ogma/blob/master/LICENSE).
+The Ogma application is proprietary software. See the [license](https://ogma.kaijinlab.com/terms) for details.
