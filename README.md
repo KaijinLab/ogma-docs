@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/KaijinLab/ogma">
+  <a href="https://ogma.kaijinlab.com">
     <img src=".github/banner.png" alt="Ogma" width="100%">
   </a>
 </p>

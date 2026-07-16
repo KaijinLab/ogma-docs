@@ -20,7 +20,7 @@ This page gets you from a fresh install to a working proxy session. For a comple
 
 Download the latest release from GitHub:
 
-<https://github.com/KaijinLab/ogma/releases>
+<https://github.com/KaijinLab/ogma-releases/releases>
 
 Available packages depend on the release:
 
@@ -75,5 +75,5 @@ Ogma checks GitHub Releases for updates.
 
 ## Need help?
 
-- Open an issue: <https://github.com/KaijinLab/ogma/issues/new/choose>
+- Open an issue: <https://github.com/KaijinLab/ogma-releases/issues/new/choose>
 - Join Discord: <https://discord.gg/QNSadmjh6y>

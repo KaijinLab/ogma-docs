@@ -107,4 +107,4 @@ Report exploitable security issues privately when the report contains sensitive 
 
 Until a dedicated security policy is published, use the GitHub issue tracker only for non-sensitive bugs and feature requests:
 
-<https://github.com/KaijinLab/ogma/issues/new/choose>
+<https://github.com/KaijinLab/ogma-releases/issues/new/choose>
