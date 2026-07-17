@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import llmstxt from 'vitepress-plugin-llms'
 
 const siteTitle = 'Ogma'
 const siteDescription = 'Documentation for Ogma, a local-first web security testing proxy with AI, MCP, automation, scanners, and plugins.'
@@ -91,6 +92,9 @@ export default defineConfig({
   // README.md and LICENSE are repo files, not docs pages -- skip their links
   ignoreDeadLinks: [/^\.\/LICENSE$/, /^\.\/README/],
   srcExclude: ['README.md'],
+  vite: {
+    plugins: [llmstxt()],
+  },
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/ogma-mark.svg' }],
     ['meta', { name: 'theme-color', content: '#C17D2A' }],
