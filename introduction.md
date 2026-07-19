@@ -21,7 +21,7 @@ Ogma is local-first. It captures HTTP, WebSocket, and SSE traffic on the worksta
 - **Content discovery** - crawl paths from wordlists against in-scope hosts to find hidden endpoints.
 - **Plugins** - extend Ogma with JavaScript plugins; install from a folder, ZIP, or the marketplace; compatible with the Caido plugin API surface.
 - **AI assistant** - embedded chat panel that can read traffic, create findings, control the browser, and run tests; connects to Anthropic, OpenAI, or Google Gemini.
-- **MCP integration** - exposes 145 tools over the Model Context Protocol so external AI clients (Claude Code, Cursor, Codex) can query history, send requests, and update findings.
+- **MCP integration** - exposes 164 tools over the Model Context Protocol so external AI clients (Claude Code, Cursor, Codex) can query history, send requests, drive scoped testing workflows, and update findings.
 
 ## Use Ogma To
 

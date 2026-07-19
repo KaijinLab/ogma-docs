@@ -27,8 +27,8 @@ Burp Suite is the established industry standard for web security testing, with a
 | Content discovery | Yes - 9,300-path wordlist built in | No | No (via extensions) |
 | Extensions / Plugins | Yes - sandboxed JS, QuickJS runtime | Yes - Java-based (BApp Store, 300+ extensions) | Yes - Java-based (BApp Store, 300+ extensions) |
 | Custom logic | HTTPQL + StreamQL for filtering; workflow nodes | Bambdas (Java/Groovy) for filtering; BChecks for scan rules | Bambdas + BChecks |
-| AI features | Yes - Anthropic, OpenAI, Google; 36 assistant tools | No | No |
-| MCP integration | Yes - 125+ tools | No | No |
+| AI features | Yes - Anthropic, OpenAI, Google; 55 in-app fallback tools plus live backend MCP tools | No | No |
+| MCP integration | Yes - 164 tools | No | No |
 | CLI / headless | Yes - server mode + `ogma pentest <url>` | No | No |
 | Project export/import | Yes - full ZIP archive | No | No (via project save/load) |
 | Free tier | Full feature access | Manual tools only; Intruder rate-limited; no scanner | N/A |
@@ -73,7 +73,7 @@ Ogma does not have a BCheck equivalent. Custom scan rules require writing a plug
 
 ### AI features
 
-Burp Professional has no built-in AI features. Ogma includes an AI assistant (Anthropic/OpenAI/Google) embedded in Replay and Intercept, with 36 tools covering request editing, scanning, browsing, and findings. The MCP server exposes 125+ tools to external AI agents.
+Burp Professional has no built-in AI features. Ogma includes an AI assistant (Anthropic/OpenAI/Google) embedded in Replay and Intercept, with 55 in-app fallback tools plus live backend MCP tools for request editing, scanning, browsing, and findings. The MCP server exposes 164 tools to external AI agents.
 
 ### CLI and headless
 

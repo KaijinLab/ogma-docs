@@ -93,7 +93,7 @@ The assistant can take these actions inside Ogma:
 | Where it runs | Inside Ogma's frontend | Separate `ogma-mcp` process |
 | Primary user | You, chatting inside Ogma | External clients (Claude Code, Cursor, Codex) |
 | Protocol | Provider API + frontend tool calls | Model Context Protocol |
-| Tool count | 39 in-app tools | 145 MCP tools |
+| Tool count | 55 in-app fallback tools, plus live backend MCP tools when available | 164 MCP tools |
 | Best for | Interactive analysis while testing | External agent workflows and IDE access |
 
 For external AI tools, see [MCP setup](../mcp-setup.md).

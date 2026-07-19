@@ -28,7 +28,7 @@ Both Ogma and Caido are modern web security proxies built as alternatives to Bur
 | Workflows | Yes - passive and active, node-based | Yes - node-based, Free tier limited to 7 |
 | Plugin system | Yes - sandboxed JS (QuickJS), JSON manifest | Yes - TypeScript/HTML/CSS/JS |
 | AI assistant | Yes - Anthropic, OpenAI, Google | Yes - multi-LLM AI agents |
-| MCP integration | Yes - 125+ tools, external agent support | No |
+| MCP integration | Yes - 164 tools, external agent support | No |
 | CLI / headless | Yes - server mode + `ogma pentest <url>` | Yes - headless mode |
 | Project export/import | Yes - full ZIP archive, 26+ tables | Yes |
 | Free tier limits | No limits (fully open) | Up to 2 projects, up to 7 workflows |
@@ -77,7 +77,7 @@ If you are migrating an existing Caido plugin to Ogma, review the [backend SDK](
 
 Both tools support Anthropic, OpenAI, and Google as AI providers.
 
-Ogma embeds an AI assistant in the Replay and Intercept views with an agentic tool loop (36 tools for browsing, scanning, replaying, and editing requests). It also ships an MCP server with 125+ tools, so external AI agents (Claude Desktop, Cursor, etc.) can drive Ogma directly.
+Ogma embeds an AI assistant in the Replay and Intercept views with an agentic tool loop, 55 in-app fallback tools, and live backend MCP tools for browsing, scanning, replaying, and editing requests. It also ships an MCP server with 164 tools, so external AI agents (Claude Desktop, Cursor, etc.) can drive Ogma directly.
 
 Caido has AI agents built into the workflow system. It does not ship an MCP server.
 

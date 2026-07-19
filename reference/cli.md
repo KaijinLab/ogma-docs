@@ -77,6 +77,30 @@ MCP can be started from Ogma settings or through the standalone `ogma-mcp` binar
 
 For normal setup, use [MCP setup](../mcp-setup.md).
 
+### Standalone `ogma-mcp` Flags
+
+```bash
+ogma-mcp \
+  --api-url http://127.0.0.1:8181 \
+  --body-preview-bytes 2048
+```
+
+| Flag | Environment variable | Default | Purpose |
+| --- | --- | --- | --- |
+| `--api-url` | `OGMA_API_URL` | `http://127.0.0.1:8181` | Running Ogma backend API URL. |
+| `--body-preview-bytes` | unset | `512` | Maximum body preview bytes returned by read tools. |
+| `--allow-write-findings` | `OGMA_MCP_ALLOW_WRITE_FINDINGS` | disabled | Enable finding creation, updates, tags, and evidence linking. |
+| `--allow-export-data` | `OGMA_MCP_ALLOW_EXPORT_DATA` | disabled | Enable export job creation. |
+| `--allow-send-requests` | `OGMA_MCP_ALLOW_SEND_REQUESTS` | disabled | Enable tools that send traffic, drive the browser, crawl, probe, test auth, or connect to WebSockets. |
+| `--max-sends-per-minute` | unset | `5` | Per-minute MCP send limit. |
+| `--max-sends-per-session` | unset | `20` | Send limit for the MCP process lifetime. |
+| `--allow-run-workflows` | `OGMA_MCP_ALLOW_RUN_WORKFLOWS` | disabled | Enable workflow preview, run, and cancel tools. |
+| `--max-workflow-runs-per-minute` | unset | `5` | Per-minute workflow run limit. |
+| `--max-workflow-runs-per-session` | unset | `20` | Workflow run limit for the MCP process lifetime. |
+| `--allow-intercept-control` | `OGMA_MCP_ALLOW_INTERCEPT_CONTROL` | disabled | Enable intercept queue control, forwarding, dropping, and modification. |
+
+MCP writes protocol messages to stdout, so runtime logging goes to stderr.
+
 ## Development Builds
 
 Local build scripts are available at the repository root:

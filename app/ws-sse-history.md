@@ -84,5 +84,6 @@ The export includes sequence number, direction, opcode, timestamp, and payload f
 ## Related Pages
 
 - [Replay](./replay.md)
+- [WebSocket Replay](./ws-replay.md)
 - [Search](./search.md)
 - [HTTPQL and StreamQL](../reference/httpql.md)

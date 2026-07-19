@@ -57,7 +57,7 @@ Most inspection tools are always available. Mutating or outbound actions are con
 | --- | --- |
 | `--allow-write-findings` | Finding create, update, tag, link, and delete actions. |
 | `--allow-export-data` | Export job creation and export download metadata. |
-| `--allow-send-requests` | Replay send, raw HTTP request, bulk request, login test, fetch URL, and request repetition tools. |
+| `--allow-send-requests` | Replay send, raw HTTP request, bulk request, browser navigation, crawling, auth profile, active probe, WebSocket, upload, redirect-following, and request repetition tools. |
 | `--allow-run-workflows` | Workflow and Automate execution tools. |
 | `--allow-intercept-control` | Intercept queue mutation and intercept state control. |
 
@@ -128,9 +128,13 @@ Most inspection tools are always available. Mutating or outbound actions are con
 | `ogma_get_replay_attempt` | Gets one Replay attempt. |
 | `ogma_list_replay_sessions` | Lists Replay sessions. |
 | `ogma_repeat_request` | Repeats an existing request with optional changes. |
+| `ogma_replay_with_modifications` | Replays a captured HTTP request with field-level overrides and returns a response plus diff summary. |
 | `ogma_http_request` | Sends a direct HTTP request through the MCP tool surface. |
 | `ogma_bulk_send_requests` | Sends a batch of requests. |
 | `ogma_fetch_url` | Fetches a URL and returns response status, headers, and body preview. |
+| `ogma_follow_redirect` | Fetches a URL, follows the redirect chain, and reports every hop. |
+| `ogma_fuzz_parameter` | Replaces a `{{FUZZ}}` placeholder with wordlist values and clusters responses by status and size. |
+| `ogma_multipart_upload` | Sends multipart form-data requests with text and file fields for upload testing. |
 | `ogma_test_login` | Tests a login endpoint with supplied or default credential pairs and reports evidence. |
 
 ### Workflows and Automate
@@ -174,6 +178,7 @@ Most inspection tools are always available. Mutating or outbound actions are con
 | `ogma_get_intercept_item` | Gets one queued intercept item. |
 | `ogma_forward_intercept_item` | Forwards an intercepted item, optionally modified. |
 | `ogma_drop_intercept_item` | Drops an intercepted item. |
+| `ogma_intercept_and_modify` | Waits for a live intercepted request or response, applies JSON patches, regex replacements, or full body replacement, then forwards it. |
 
 ### Proxy, Scope, and Network
 
@@ -213,6 +218,7 @@ Most inspection tools are always available. Mutating or outbound actions are con
 | --- | --- |
 | `ogma_browser_launch` | Launches the Ogma browser. |
 | `ogma_browser_navigate` | Navigates the browser to a URL. |
+| `ogma_browser_get_dom` | Navigates and returns the rendered DOM plus optional selector results after JavaScript has run. |
 | `ogma_browser_screenshot` | Captures browser page state. |
 | `ogma_browser_execute_js` | Executes JavaScript in the browser. |
 | `ogma_browser_get_source` | Gets the current page DOM source. |
@@ -236,6 +242,18 @@ Most inspection tools are always available. Mutating or outbound actions are con
 | `ogma_browser_reload` | Reloads the page. |
 | `ogma_browser_find_text` | Finds text in the current page. |
 | `ogma_browser_clear_data` | Clears browser data. |
+| `ogma_crawl_site` | Crawls a target through the embedded browser within the active scope and returns coverage data. |
+
+### Authentication and Authorization Testing
+
+| Tool | What it does |
+| --- | --- |
+| `ogma_auth_capture_profile` | Captures cookies, storage, detected auth tokens, and CSRF candidates from the embedded browser. |
+| `ogma_auth_list_profiles` | Lists captured auth profiles with secret values summarized. |
+| `ogma_auth_apply_profile` | Applies a captured auth profile to the embedded browser for role or account switching. |
+| `ogma_auth_refresh_csrf` | Refreshes CSRF token candidates from the current page, cookies, storage, meta tags, and hidden inputs. |
+| `ogma_login_replay_auto` | Auto-detects a login form, submits credentials in the embedded browser, and captures an auth profile. |
+| `ogma_authz_matrix_test` | Replays one captured request as multiple auth profiles to compare access-control outcomes. |
 
 ### Utilities and Analysis
 
@@ -244,13 +262,29 @@ Most inspection tools are always available. Mutating or outbound actions are con
 | `ogma_fetch_sourcemap` | Fetches and inspects a JavaScript source map. |
 | `ogma_proto_decode` | Decodes protobuf payloads using configured schemas. |
 | `ogma_decode_jwt` | Decodes JWT headers and claims. |
+| `ogma_decode_response` | Decodes, decompresses, or transforms response bodies with ordered operations such as base64, gzip, deflate, brotli, URL, HTML entity, and hex handling. |
 | `ogma_search_js_secrets` | Searches JavaScript responses for exposed secrets and endpoints. |
 | `ogma_compare_responses` | Compares two responses. |
 | `ogma_bytes_transform` | Performs byte transforms such as encoding, decoding, XOR, hashing, and extraction. |
 | `ogma_wasm_inspect` | Inspects a WebAssembly module. |
 | `ogma_fingerprint_target` | Identifies target technology from captured traffic and responses. |
+| `ogma_sign_request` | Computes HMAC-SHA256 request signature headers for applications that use client-side signing schemes. |
+| `ogma_find_in_response` | Fetches up to 10 URLs and searches response bodies for a regex with compact context. |
 | `ogma_think` | Records structured reasoning or plan text inside the MCP session. |
 | `ogma_explain_capabilities` | Returns the MCP server capability summary. |
+
+### Active Probe Helpers
+
+| Tool | What it does |
+| --- | --- |
+| `ogma_run_active_probe_workflow` | Runs a bounded vulnerability-specific probe against a captured request. Modules include IDOR/BOLA, CORS, SSRF OAST, XSS reflection/storage, SQLi timing/error, path traversal, SSTI, upload bypass, GraphQL introspection/authorization, JWT manipulation, and rate limit checks. |
+
+### Direct WebSocket Testing
+
+| Tool | What it does |
+| --- | --- |
+| `ogma_websocket_connect` | Connects to a `ws://` or `wss://` URL, sends messages, and returns a transcript. |
+| `ogma_ws_capture_history` | Saves a WebSocket transcript from `ogma_websocket_connect` as structured Ogma history for review and evidence linking. |
 
 ### Match and Replace
 

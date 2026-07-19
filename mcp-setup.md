@@ -105,9 +105,11 @@ Restart Cursor. Verify in Settings > Tools & MCP.
 By default, the MCP server is read-only. These operations are not available unless explicitly enabled:
 
 - Sending requests (Replay)
+- Driving the embedded browser, crawler, auth capture, and active probe helpers
 - Running workflows
 - Creating or modifying findings
 - Modifying scope or match-replace rules
+- Modifying or forwarding intercepted traffic
 - Deleting data
 - Accessing secret environment variable values
 - Exporting data
@@ -170,7 +172,7 @@ OGMA_MCP_ALLOW_EXPORT_DATA=1 ./ogma-mcp
 ### Export tools available
 
 | Tool | Permission required | Description |
-|------|--------------------|-|
+|------|--------------------|-------------|
 | `ogma_preview_export_plan` | None (read-only) | Preview what would be included in an export |
 | `ogma_list_export_jobs` | None (read-only) | List recent export jobs |
 | `ogma_get_export_job` | None (read-only) | Check export job status |
@@ -233,6 +235,24 @@ OGMA_MCP_ALLOW_SEND_REQUESTS=1 OGMA_MCP_MAX_SENDS_PER_MINUTE=3 ./ogma-mcp
 | `ogma_preview_replay_send` | send_requests | Prepare a send, get confirmation token |
 | `ogma_send_replay_request` | send_requests | Execute send with confirmation token |
 | `ogma_create_replay_session_from_history` | send_requests | Create Replay session |
+| `ogma_create_replay_session_raw` | send_requests | Create Replay session from a raw request definition |
+| `ogma_repeat_request` | send_requests | Repeat a captured request with optional changes |
+| `ogma_replay_with_modifications` | send_requests | Replay a captured request with field-level overrides |
+| `ogma_http_request` | send_requests | Send a direct HTTP request |
+| `ogma_fetch_url` | send_requests | Fetch a URL and return status, headers, and preview |
+| `ogma_follow_redirect` | send_requests | Follow a redirect chain and report each hop |
+| `ogma_bulk_send_requests` | send_requests | Send a bounded batch of requests |
+| `ogma_fuzz_parameter` | send_requests | Replace a `{{FUZZ}}` placeholder with wordlist values |
+| `ogma_multipart_upload` | send_requests | Send multipart form-data requests for upload testing |
+| `ogma_websocket_connect` | send_requests | Connect to a WebSocket URL and exchange messages |
+| `ogma_login_replay_auto` | send_requests | Submit a browser login form and capture an auth profile |
+| `ogma_auth_capture_profile` | send_requests | Capture browser cookies, storage, auth tokens, and CSRF candidates |
+| `ogma_auth_apply_profile` | send_requests | Apply a captured auth profile to the browser |
+| `ogma_auth_refresh_csrf` | send_requests | Refresh CSRF candidates from browser state |
+| `ogma_authz_matrix_test` | send_requests | Replay one request as multiple auth profiles |
+| `ogma_run_active_probe_workflow` | send_requests | Run bounded vulnerability-specific active probes |
+| `ogma_browser_navigate` and browser interaction tools | send_requests | Drive the embedded browser and capture resulting traffic |
+| `ogma_crawl_site` | send_requests | Crawl a scoped target through the embedded browser |
 | `ogma_get_replay_session` | None | View Replay session metadata |
 | `ogma_get_replay_attempt` | None | View Replay attempt metadata |
 | `ogma_list_replay_sessions` | None | List Replay sessions |
@@ -264,11 +284,39 @@ AI: (calls ogma_send_replay_request with token and hash)
 
 ### Still not available with request-sending permissions only
 
-- Sending to arbitrary URLs (only existing captured requests)
-- Changing host or scheme from source
 - Workflow execution
-- Automate execution
+- Finding creation or update
 - Deletion
+
+Direct request tools can target arbitrary URLs, but scope checks and rate limits still apply where the tool sends traffic through Ogma's guarded send path. Keep the active scope narrow before enabling these tools.
+
+## Intercept Control
+
+Warning: intercept control lets an MCP client forward, drop, or modify live traffic currently held in Ogma's intercept queue.
+
+To enable:
+
+```bash
+./ogma-mcp --allow-intercept-control
+```
+
+Or via environment variable:
+
+```bash
+OGMA_MCP_ALLOW_INTERCEPT_CONTROL=1 ./ogma-mcp
+```
+
+### Intercept tools
+
+| Tool | Permission | Description |
+|------|-----------|-------------|
+| `ogma_get_intercept_status` | intercept_control | Read request, response, and WebSocket intercept state |
+| `ogma_set_intercept_enabled` | intercept_control | Enable or disable intercept modes |
+| `ogma_list_intercept_queue` | intercept_control | List currently held items |
+| `ogma_get_intercept_item` | intercept_control | Inspect one queued item |
+| `ogma_forward_intercept_item` | intercept_control | Forward a queued item, optionally modified |
+| `ogma_drop_intercept_item` | intercept_control | Drop a queued item |
+| `ogma_intercept_and_modify` | intercept_control | Wait for a matching item, modify it, and forward it |
 
 ## Workflow Execution
 

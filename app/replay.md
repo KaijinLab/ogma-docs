@@ -78,5 +78,6 @@ Click **AI Assist** in a Replay session to generate an HTTPQL filter expression 
 ## Related Pages
 
 - [Automate](./automate.md)
+- [WebSocket Replay](./ws-replay.md)
 - [Environment](./environment.md)
 - [Findings](./findings.md)
