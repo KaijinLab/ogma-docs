@@ -61,6 +61,36 @@ Packaged Ogma builds can manage MCP from **Settings > MCP**. Use the settings sc
 
 Use the standalone `ogma-mcp` binary when your AI client expects to launch the MCP server directly.
 
+Ogma also exposes MCP management through its local REST API. These endpoints are used by the settings screen and the in-app AI bridge:
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /mcp/status` | Return `{ running, pid, config }` for the embedded MCP child process. |
+| `POST /mcp/start` | Start the embedded MCP child process with the persisted permission and rate-limit settings. |
+| `POST /mcp/stop` | Stop the embedded MCP child process. |
+| `GET /settings/mcp` | Return the persisted MCP configuration. |
+| `PUT /settings/mcp` | Save MCP configuration. Public bind and public write-tool configurations require explicit confirmation fields. |
+| `GET /mcp/tools` | Return the current MCP tool catalog plus the active config used by the REST bridge. |
+| `POST /mcp/tools/call` | Call one MCP tool through the REST bridge with `{ "name": "...", "arguments": { ... } }`. Returns `{ "result": "..." }`. |
+
+Default persisted MCP configuration:
+
+```json
+{
+  "bind_host": "127.0.0.1",
+  "port": 3000,
+  "allow_write_findings": false,
+  "allow_export_data": false,
+  "allow_send_requests": false,
+  "allow_run_workflows": false,
+  "allow_intercept_control": false,
+  "max_sends_per_minute": 5,
+  "max_workflow_runs_per_minute": 5
+}
+```
+
+`PUT /settings/mcp` accepts those same fields. If `bind_host` is `0.0.0.0` or `::`, include `"allow_public_bind": true` in the request body. If that public bind also enables write-capable tools, include `"acknowledge_write_tool_risk": true`.
+
 ## Claude Code
 
 Add to `~/.claude.json`:
