@@ -92,5 +92,6 @@ Marketplace installs require a network connection to fetch the package.
 
 ## Related Pages
 
+- [Plugin Quickstart](/plugins/quickstart)
 - [Backend SDK](/plugins/backend-sdk)
 - [Frontend SDK](/plugins/frontend-sdk)

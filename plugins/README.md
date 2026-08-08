@@ -10,6 +10,8 @@ Ogma plugins extend the tool with custom backend logic, frontend UI panels, and 
 
 This document is the primary reference for plugin authors.
 
+If you want the absolute quickest start, use the [Plugin Quickstart](/plugins/quickstart).
+
 ---
 
 ## Quick start
@@ -38,7 +40,7 @@ my-plugin/
 }
 ```
 
-`backend/script.js` (plain ES5/ES2020, no imports):
+`backend/script.js` (ES2020; imports are fine when using a bundler):
 ```js
 async function init(sdk) {
   sdk.console.log("my-plugin started");
@@ -49,6 +51,25 @@ async function init(sdk) {
     }
   });
 }
+```
+
+This is enough for a working backend-only plugin. Keep it as a single file in `backend/script.js` and point `manifest.json` to it directly.
+
+### One-minute build flow (TypeScript source)
+
+If you are authoring TypeScript, use this structure:
+
+```text
+my-plugin/
+  manifest.json
+  backend/
+    src/index.ts
+```
+
+Build:
+
+```bash
+npx esbuild backend/src/index.ts --bundle --format=iife --platform=neutral --external:@ogma/sdk --outfile=backend/script.js
 ```
 
 Install: **Plugins > Install**, select the `my-plugin/` directory. Then enable it.
@@ -134,9 +155,45 @@ sdk.meta.version()     // > string: semver (e.g. "1.0.0")
 sdk.meta.path()        // > string: writable data directory for this plugin
 ```
 
-`sdk.meta.path()` returns a path like `~/.local/share/ogma/plugins/my-plugin/data`. The directory is created automatically. Use it to persist plugin data between restarts.
+`sdk.meta.path()` points to the plugin's writable private data directory, e.g. `~/.local/share/ogma/plugins/my-plugin/data`. The directory is created automatically and can be used to persist plugin data across restarts.
 
-**Note:** The QuickJS sandbox has no `fs` or `path` module. To read/write files from a plugin, expose them via `sdk.api` handlers that use Node.js built-ins - or, for pure-JS plugins, serialize state to a string and use `sdk.env.getVar` / store state in your own data structures (in-memory only between restarts).
+`sdk.storage`, `sdk.path`, and `sdk.fs` are also available for state and file helpers.
+
+### `sdk.storage`
+
+```js
+sdk.storage.get("key")      // > string | null
+sdk.storage.set("key", "value")
+sdk.storage.delete("key")
+sdk.storage.clear()
+sdk.storage.keys()          // > string[]
+```
+
+`sdk.storage` is scoped to the plugin id and persisted across plugin restarts.
+
+### `sdk.fs`
+
+```js
+sdk.fs.read("relative/file.txt")          // > string
+sdk.fs.write("relative/file.txt", "text")
+sdk.fs.appendFile("relative/file.txt", "more")
+sdk.fs.list("relative/dir")              // > string[]
+sdk.fs.mkdir("relative/dir")
+```
+
+`sdk.fs` is limited to files under `sdk.meta.path()`.
+
+### `sdk.path`
+
+```js
+sdk.path.join("a", "b", "c")
+sdk.path.basename("/tmp/file.txt")
+sdk.path.dirname("/tmp/file.txt")
+sdk.path.extname("file.txt")
+sdk.path.resolve("/a", "b")
+sdk.path.isAbsolute("/tmp/file.txt")
+sdk.path.sep
+```
 
 ### `sdk.events`
 
@@ -154,8 +211,8 @@ sdk.events.onInterceptResponse(function(req, res) {
   // Return value is ignored.
 });
 
-sdk.events.onProjectChange(function(project) {
-  // project: { id, name } or null
+sdk.events.onProjectChange(function() {
+  // no callback args
 });
 
 sdk.events.onFindingCreated(function(finding) {
@@ -211,7 +268,7 @@ Register backend RPC functions that the frontend can call via `sdk.backend.*`:
 
 ```js
 // In backend init:
-sdk.api.register("getScans", function(sdk, scanId) {
+sdk.api.register("getScans", function(scanId) {
   return { scans: [] };
 });
 
@@ -219,7 +276,7 @@ sdk.api.register("getScans", function(sdk, scanId) {
 sdk.api.send("scan:complete", { scanId: 1, status: "ok" });
 ```
 
-The function receives `sdk` as its first argument, followed by any arguments passed from the frontend. Return values are JSON-serialized and sent back to the caller.
+The handler receives arguments passed from the frontend (no extra `sdk` argument is injected). Return values are JSON-serialized and sent back to the caller.
 
 Frontend calls these via `sdk.backend.getScans(scanId)` - see [Frontend plugin API](#frontend-plugin-api-sdk).
 
@@ -455,6 +512,7 @@ These are always granted to any installed plugin:
 | `read_findings` | `sdk.findings.get`, `sdk.findings.list` |
 | `read_scope` | `sdk.scope.getActive` |
 | `read_projects` | `sdk.projects.getCurrent`, `sdk.projects.list` |
+| `plugin_storage` | `sdk.storage`, `sdk.fs`, `sdk.path` |
 
 ### Protected permissions (require user approval)
 
@@ -471,13 +529,13 @@ The user sees a prompt when enabling a plugin that declares protected permission
 
 ## Plugin package structure
 
-A plugin package is a directory on disk. Ogma reads it in-place; no zip or archive format is used for local installs.
+A plugin package can be installed from a local directory and, in browser flows, from `.zip` exports too.
 
 ```
 my-plugin/
   manifest.json           - required
   backend/
-    script.js             - bundled backend JS (no imports, ES2020)
+    script.js             - bundled backend JS (ES2020)
   frontend/
     script.js             - bundled frontend JS
     style.css             - optional CSS
@@ -486,9 +544,11 @@ my-plugin/
 
 ### Backend script requirements
 
-- Must be a single self-contained JS file. No `import`/`require`.
+- Must be a single self-contained JS file.
+- `require()` and dynamic `import()` are not supported.
 - Must export an `init(sdk)` function (or define it as a global).
-- ES2020 subset supported by QuickJS: `async/await`, `Promise`, `Map`, `Set`, `Symbol`, `Proxy`, `Date`, `RegExp`, `JSON`. No `fetch`, no `fs`, no `path`, no `Buffer`.
+- ES2020 subset supported by QuickJS: `async/await`, `Promise`, `Map`, `Set`, `Symbol`, `Proxy`, `Date`, `RegExp`, `JSON`. No `fetch`, no `Buffer`.
+- Supported static imports are resolved by plugin preprocessing: `@ogma/sdk`, `crypto`, `fs`, `path`.
 - Max file size: 256 KB.
 
 ### Frontend script requirements
@@ -502,7 +562,7 @@ my-plugin/
 
 ## Building a plugin for Ogma
 
-Since the backend must be a single bundled JS file with no imports, you must bundle your TypeScript/ES module source before installing.
+Since the backend must be a single bundled JS file, you must bundle your TypeScript/ES module source before installing.
 
 Recommended toolchain:
 
@@ -517,7 +577,7 @@ esbuild packages/backend/src/index.ts \
   --format=iife \
   --global-name=_plugin \
   --outfile=dist/backend/script.js \
-  --external:caido:plugin  # shim is provided by Ogma at runtime
+  --external:@ogma/sdk
 
 # Bundle frontend:
 vite build packages/frontend --outDir ../../dist/frontend

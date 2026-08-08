@@ -67,7 +67,7 @@ Ogma includes a content discovery module with a built-in 9,300-path wordlist (fr
 
 Both tools use web technology for plugins. The differences are in the runtime and toolchain.
 
-Ogma plugins run backend code in a QuickJS sandbox (ES2020 subset - no `fetch`, no `fs`, no `Buffer`). Frontend plugin code runs in a sandboxed iframe. The manifest is a plain JSON file. No build step is required for simple plugins; for TypeScript source, use `esbuild` or `vite` to produce a single bundled file.
+Ogma plugins run backend code in a QuickJS sandbox (ES2020 subset - no `fetch`, no `Buffer`, no module loading). The backend exposes host APIs through `sdk`; file operations are available via `sdk.fs`/`sdk.path`, and frontend plugins run in a sandboxed iframe. The manifest is a plain JSON file. No runtime build step is required for simple plugins; for TypeScript source, use `esbuild` or `vite` to produce a single bundled file.
 
 Caido plugins are written in TypeScript, compiled to JavaScript, and support HTML/CSS/JS frontends. Caido's dev toolchain (`@caido-community/dev`) handles bundling. The plugin API surface is larger and more stable - Caido has a longer plugin ecosystem history.
 

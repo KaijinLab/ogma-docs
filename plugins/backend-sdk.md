@@ -32,6 +32,9 @@ Ogma calls `init(sdk)` when the plugin is enabled.
 | `sdk.requests` | Query HTTP history and request data. |
 | `sdk.findings` | Query or create findings when permissions allow it. |
 | `sdk.scope` | Read active scope information. |
+| `sdk.storage` | Key/value persistence for plugin state. |
+| `sdk.fs` | File operations in plugin private data dir. |
+| `sdk.path` | Path helpers for composing paths in plugin data dir. |
 | `sdk.api` | Expose backend handlers to the plugin frontend. |
 
 ## Logging
@@ -55,6 +58,22 @@ sdk.meta.path()
 
 Use `sdk.meta.path()` for plugin-specific data. Do not assume access to arbitrary filesystem paths from sandboxed plugin code.
 
+```js
+sdk.storage.set("key", "value")
+sdk.storage.get("key")
+sdk.storage.keys()
+sdk.storage.delete("key")
+sdk.storage.clear()
+```
+
+```js
+sdk.fs.read("relative/file.txt")
+sdk.fs.write("relative/file.txt", "text")
+sdk.fs.appendFile("relative/file.txt", "more")
+sdk.fs.mkdir("relative/dir")
+sdk.path.join("a", "b", "c")
+```
+
 ## Events
 
 ```js
@@ -66,8 +85,8 @@ sdk.events.onInterceptResponse(function(req, res) {
   sdk.console.log(res.getCode())
 })
 
-sdk.events.onProjectChange(function(project) {
-  sdk.console.log(project ? project.name : "no active project")
+sdk.events.onProjectChange(function() {
+  sdk.console.log("project changed")
 })
 ```
 
