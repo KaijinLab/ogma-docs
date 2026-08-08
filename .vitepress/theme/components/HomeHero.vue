@@ -44,7 +44,7 @@ const resetZoom = () => {
 
 // ── Download button with OS detection ────────────────────────────────────────
 
-const VERSION = '0.1.0'
+const VERSION = '0.1.1'
 const BASE = `https://github.com/KaijinLab/ogma-releases/releases/download/v${VERSION}`
 const RELEASES = 'https://github.com/KaijinLab/ogma-releases/releases/latest'
 
